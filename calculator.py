@@ -5,14 +5,14 @@ from abc import ABC, abstractmethod
 
 # Базовый класс для всех фигур (абстрактный)
 class Shape(ABC):
-    instances = 0  # Переменная класса для хранения количества созданных фигур
+    shapes_count = 0  # Переменная класса для хранения количества созданных фигур
 
     def __init__(self):
-        Shape.instances += 1  # Увеличиваем счетчик при создании каждой фигуры
+        Shape.shapes_count += 1  # Увеличиваем счетчик при создании каждой фигуры
 
     @classmethod
     def total_shapes(cls) -> int:
-        return cls.instances  # Метод класса для получения общего числа фигур
+        return cls.shapes_count  # Метод класса для получения общего числа фигур
 
     @abstractmethod
     def area(self) -> float:
@@ -70,7 +70,7 @@ class Rectangle(Shape):
     def perimeter(self) -> float:
         return 2 * (self.width + self.height)
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         canvas.create_rectangle(50, 50, 50 + self.width, 50 + self.height, outline="orange", width=2)
 
 # Добавление треугольника
@@ -109,7 +109,7 @@ class Rhombus(Shape):
         side = math.sqrt((self.diagonal1 / 2) ** 2 + (self.diagonal2 / 2) ** 2)
         return 4 * side
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         # Визуализация ромба как четырехугольник
         x, y = 100, 100
         canvas.create_polygon(x, y - self.diagonal2 / 2,
@@ -134,7 +134,7 @@ class Trapezoid(Shape):
     def perimeter(self) -> float:
         return self.a + self.b + self.c + self.d
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         # Визуализация трапеции на холсте
         canvas.create_polygon(50, 150, 50 + self.a, 150, 50 + self.a - (self.a - self.b) / 2, 150 - self.h,
                               50 + (self.a - self.b) / 2, 150 - self.h, outline="brown", width=2, fill='')
@@ -152,7 +152,7 @@ class Sphere(Shape):
     def volume(self) -> float:
         return (4 / 3) * math.pi * self.radius ** 3  # 4/3πr³
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         canvas.create_oval(50, 50, 50 + 2 * self.radius, 50 + 2 * self.radius, outline="red", width=2)
 
 # Класс для цилиндра
@@ -170,7 +170,7 @@ class Cylinder(Shape):
         # Объем цилиндра
         return math.pi * self.radius ** 2 * self.height  # πr²h
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         # Визуализация цилиндра (два овала и прямоугольник)
         canvas.create_oval(50, 50, 50 + 2 * self.radius, 50 + self.radius, outline="blue", width=2)
         canvas.create_oval(50, 50 + self.height, 50 + 2 * self.radius, 50 + self.height + self.radius, outline="blue",
@@ -192,7 +192,7 @@ class Cube(Shape):
         # Объем куба
         return self.side ** 3
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         # Рисуем куб как квадрат с эффектом 3D
         x, y = 50, 50
         offset = self.side / 2
@@ -221,7 +221,7 @@ class Parallelepiped(Shape):
         # Объем параллелепипеда
         return self.length * self.width * self.height
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         # Рисуем параллелепипед как прямоугольник с эффектом 3D
         x, y = 50, 50
         offset = self.width / 2
@@ -254,7 +254,7 @@ class Pyramid(Shape):
         # Объем пирамиды
         return (1 / 3) * self.base_length * self.base_width * self.height
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         # Рисуем пирамиду как треугольник с прямоугольным основанием
         x, y = 50, 150
 
@@ -283,7 +283,7 @@ class Cone(Shape):
         # Объем конуса
         return (1 / 3) * math.pi * self.radius ** 2 * self.height
 
-    def visualize(self, canvas):
+    def visualize(self, canvas: Canvas):
         # Рисуем конус как треугольник с овальным основанием
         x, y = 50, 150
 
@@ -294,212 +294,86 @@ class Cone(Shape):
         canvas.create_line(x + 2 * self.radius, y + 10, x + self.radius, y - self.height, fill="blue",
                            width=2)  # Правая сторона
 
+
+figures = {
+    "Круг": Circle,
+    "Квадрат": Square,
+    "Прямоугольник": Rectangle,
+    "Треугольник": Triangle,
+    "Ромб": Rhombus,
+    "Трапеция": Trapezoid,
+    "Сфера": Sphere,
+    "Цилиндр": Cylinder,
+    "Куб": Cube,
+    "Параллелепипед": Parallelepiped,
+    "Пирамида": Pyramid,
+    "Конус": Cone
+}
+
+figure_params = {
+    "Круг": ["радиус"],
+    "Квадрат": ["сторона"],
+    "Прямоугольник": ["ширина", "высота"],
+    "Треугольник": ["сторона A", "сторона B", "сторона C"],
+    "Ромб": ["первая диагональ", "вторая диагональ"],
+    "Трапеция": ["основание a", "основание b", "боковая сторона c", "боковая сторона d", "высота"],
+    "Сфера": ["радиус"],
+    "Цилиндр": ["радиус основания", "высота"],
+    "Куб": ["сторона"],
+    "Параллелепипед": ["длина", "ширина", "высота"],
+    "Пирамида": ["длина основания", "ширина основания", "высота"],
+    "Конус": ["радиус основания", "высота"]
+}
+
+property_names = {
+    'area': 'Площадь',
+    'volume': 'Объем',
+    'perimeter': 'Периметр'
+}
+
+entries = {}  # Словарь для хранения ввода
+
+
 # Функция для выбора фигуры из выпадающего меню
-def selected(event):
+def selected(event) -> None:
     selection = combobox.get()  # Получаем выбранное значение
     for widget in frame_inputs.winfo_children():
         widget.destroy()  # Удаляем все виджеты из фрейма перед добавлением новых
 
-    if selection == "Круг":
-        label = tk.Label(frame_inputs, text="Введите радиус круга:")  # Добавляем метку для ввода радиуса круга
+    # Проверяем, есть ли выбранная фигура в списке параметров и создаем поле ввода для него
+    if selection in figure_params:
+        params = figure_params[selection]
+        create_input_fields(params)
+
+        button = tk.Button(frame_inputs, text="Рассчитать", command=lambda: calculate_from_input(selection, params))
+        button.pack(side=tk.LEFT)
+
+# Функция для ввода параметров от пользователя
+def create_input_fields(params: list[str]) -> None:
+    label_info = tk.Label(frame_inputs, text="Введите параметры:")
+    label_info.pack(side=tk.TOP)
+
+    for param in params:
+        label = tk.Label(frame_inputs, text=f"{param}")
         label.pack(side=tk.LEFT)
-        global entry  # Добавляем поле для ввода радиуса
         entry = tk.Entry(frame_inputs)
         entry.pack(side=tk.LEFT)
-        button = tk.Button(frame_inputs, text="Рассчитать", command=calculate_circle)  # Добавляем кнопку для расчета
-        button.pack(side=tk.LEFT)
+        entries[param] = entry
 
-    elif selection == "Квадрат":
-        label = tk.Label(frame_inputs, text="Введите сторону квадрата:")
-        label.pack(side=tk.LEFT)
-        entry = tk.Entry(frame_inputs)
-        entry.pack(side=tk.LEFT)
-        button = tk.Button(frame_inputs, text="Рассчитать", command=calculate_square)
-        button.pack(side=tk.LEFT)
+# Функция для передачи введенных данных в расчет
+def calculate_from_input(selection: str, params: list[str]) -> None:
+    try:
+        # Получаем данные, введенные пользователем, которые хранятся в словаре entries (выше)
+        args = [float(entries[param].get()) for param in params]
 
-    elif selection == "Прямоугольник":
-        label_width = tk.Label(frame_inputs, text="Введите ширину прямоугольника:")
-        label_width.pack(side=tk.LEFT)
-        global entry_rectangle_width
-        entry_rectangle_width = tk.Entry(frame_inputs)
-        entry_rectangle_width.pack(side=tk.LEFT)
+        # Используем словарь figures для получения класса фигуры
+        shape_class = figures[selection]
 
-        label_height = tk.Label(frame_inputs, text="Введите высоту прямоугольника:")
-        label_height.pack(side=tk.LEFT)
-        global entry_rectangle_height
-        entry_rectangle_height = tk.Entry(frame_inputs)
-        entry_rectangle_height.pack(side=tk.LEFT)
+        # Вызываем универсальную функцию для расчета
+        calculate_shape(shape_class, *args)
+    except ValueError:
+        messagebox.showerror("Ошибка", "Введите корректные данные")
 
-        button = tk.Button(frame_inputs, text="Рассчитать", command=calculate_rectangle)
-        button.pack(side=tk.LEFT)
-
-    elif selection == "Треугольник":
-        label_a = tk.Label(frame_inputs, text="Введите сторону a треугольника:")
-        label_a.pack(side=tk.LEFT)
-        global entry_triangle_a
-        entry_triangle_a = tk.Entry(frame_inputs)
-        entry_triangle_a.pack(side=tk.LEFT)
-
-        label_b = tk.Label(frame_inputs, text="Введите сторону b треугольника:")
-        label_b.pack(side=tk.LEFT)
-        global entry_triangle_b
-        entry_triangle_b = tk.Entry(frame_inputs)
-        entry_triangle_b.pack(side=tk.LEFT)
-
-        label_c = tk.Label(frame_inputs, text="Введите сторону c треугольника:")
-        label_c.pack(side=tk.LEFT)
-        global entry_triangle_c
-        entry_triangle_c = tk.Entry(frame_inputs)
-        entry_triangle_c.pack(side=tk.LEFT)
-
-        button = tk.Button(frame_inputs, text="Рассчитать", command=calculate_triangle)
-        button.pack(side=tk.LEFT)
-
-    elif selection == "Ромб":
-        label_d1 = tk.Label(frame_inputs, text="Введите первую диагональ ромба:")
-        label_d1.pack(side=tk.LEFT)
-        global entry_rhombus_d1
-        entry_rhombus_d1 = tk.Entry(frame_inputs)
-        entry_rhombus_d1.pack(side=tk.LEFT)
-
-        label_d2 = tk.Label(frame_inputs, text="Введите вторую диагональ ромба:")
-        label_d2.pack(side=tk.LEFT)
-        global entry_rhombus_d2
-        entry_rhombus_d2 = tk.Entry(frame_inputs)
-        entry_rhombus_d2.pack(side=tk.LEFT)
-
-        button = tk.Button(frame_inputs, text="Рассчитать", command=calculate_rhombus)
-        button.pack(side=tk.LEFT)
-
-    elif selection == "Трапеция":
-        label_trapezoid_a = tk.Label(frame_inputs, text="Введите основание a трапеции:")
-        label_trapezoid_a.pack(side=tk.LEFT)
-        global entry_trapezoid_a
-        entry_trapezoid_a = tk.Entry(frame_inputs)
-        entry_trapezoid_a.pack(side=tk.LEFT)
-
-        label_trapezoid_b = tk.Label(frame_inputs, text="Введите основание b трапеции:")
-        label_trapezoid_b.pack(side=tk.LEFT)
-        global entry_trapezoid_b
-        entry_trapezoid_b = tk.Entry(frame_inputs)
-        entry_trapezoid_b.pack(side=tk.LEFT)
-
-        label_trapezoid_c = tk.Label(frame_inputs, text="Введите боковую сторону c трапеции:")
-        label_trapezoid_c.pack(side=tk.LEFT)
-        global entry_trapezoid_c
-        entry_trapezoid_c = tk.Entry(frame_inputs)
-        entry_trapezoid_c.pack(side=tk.LEFT)
-
-        label_trapezoid_d = tk.Label(frame_inputs, text="Введите боковую сторону d трапеции:")
-        label_trapezoid_d.pack(side=tk.LEFT)
-        global entry_trapezoid_d
-        entry_trapezoid_d = tk.Entry(frame_inputs)
-        entry_trapezoid_d.pack(side=tk.LEFT)
-
-        label_trapezoid_h = tk.Label(frame_inputs, text="Введите высоту трапеции:")
-        label_trapezoid_h.pack(side=tk.LEFT)
-        global entry_trapezoid_h
-        entry_trapezoid_h = tk.Entry(frame_inputs)
-        entry_trapezoid_h.pack(side=tk.LEFT)
-
-        button_trapezoid = tk.Button(frame_inputs, text="Рассчитать", command=calculate_trapezoid)
-        button_trapezoid.pack(side=tk.LEFT)
-
-    elif selection == "Сфера":
-        label_sphere = tk.Label(frame_inputs, text="Введите радиус сферы:")
-        label_sphere.pack(side=tk.LEFT)
-        global entry_sphere
-        entry_sphere = tk.Entry(frame_inputs)
-        entry_sphere.pack(side=tk.LEFT)
-
-        button_sphere = tk.Button(frame_inputs, text="Рассчитать", command=calculate_sphere)
-        button_sphere.pack(side=tk.LEFT)
-
-    elif selection == "Цилиндр":
-        label_cylinder_radius = tk.Label(frame_inputs, text="Введите радиус основания цилиндра:")
-        label_cylinder_radius.pack(side=tk.LEFT)
-        global entry_cylinder_radius
-        entry_cylinder_radius = tk.Entry(frame_inputs)
-        entry_cylinder_radius.pack(side=tk.LEFT)
-
-        label_cylinder_height = tk.Label(frame_inputs, text="Введите высоту цилиндра:")
-        label_cylinder_height.pack(side=tk.LEFT)
-        global entry_cylinder_height
-        entry_cylinder_height = tk.Entry(frame_inputs)
-        entry_cylinder_height.pack(side=tk.LEFT)
-
-        button_cylinder = tk.Button(frame_inputs, text="Рассчитать", command=calculate_cylinder)
-        button_cylinder.pack(side=tk.LEFT)
-
-    elif selection == "Куб":
-        label_cube_side = tk.Label(frame_inputs, text="Введите длину ребра куба:")
-        label_cube_side.pack(side=tk.LEFT)
-        global entry_cube_side
-        entry_cube_side = tk.Entry(frame_inputs)
-        entry_cube_side.pack(side=tk.LEFT)
-
-        button_cube = tk.Button(frame_inputs, text="Рассчитать", command=calculate_cube)
-        button_cube.pack(side=tk.LEFT)
-
-    elif selection == "Параллелепипед":
-        label_parallelepiped_length = tk.Label(frame_inputs, text="Введите длину параллелепипеда:")
-        label_parallelepiped_length.pack(side=tk.LEFT)
-        global entry_parallelepiped_length
-        entry_parallelepiped_length = tk.Entry(frame_inputs)
-        entry_parallelepiped_length.pack(side=tk.LEFT)
-
-        label_parallelepiped_width = tk.Label(frame_inputs, text="Введите ширину параллелепипеда:")
-        label_parallelepiped_width.pack(side=tk.LEFT)
-        global entry_parallelepiped_width
-        entry_parallelepiped_width = tk.Entry(frame_inputs)
-        entry_parallelepiped_width.pack(side=tk.LEFT)
-
-        label_parallelepiped_height = tk.Label(frame_inputs, text="Введите высоту параллелепипеда:")
-        label_parallelepiped_height.pack(side=tk.LEFT)
-        global entry_parallelepiped_height
-        entry_parallelepiped_height = tk.Entry(frame_inputs)
-        entry_parallelepiped_height.pack(side=tk.LEFT)
-
-        button_parallelepiped = tk.Button(frame_inputs, text="Рассчитать", command=calculate_parallelepiped)
-        button_parallelepiped.pack(side=tk.LEFT)
-
-    if selection == "Пирамида":
-        label_pyramid_base_length = tk.Label(frame_inputs, text="Введите длину основания пирамиды:")
-        label_pyramid_base_length.pack(side=tk.LEFT)
-        global entry_pyramid_base_length
-        entry_pyramid_base_length = tk.Entry(frame_inputs)
-        entry_pyramid_base_length.pack(side=tk.LEFT)
-
-        label_pyramid_base_width = tk.Label(frame_inputs, text="Введите ширину основания пирамиды:")
-        label_pyramid_base_width.pack(side=tk.LEFT)
-        global entry_pyramid_base_width
-        entry_pyramid_base_width = tk.Entry(frame_inputs)
-        entry_pyramid_base_width.pack(side=tk.LEFT)
-
-        label_pyramid_height = tk.Label(frame_inputs, text="Введите высоту пирамиды:")
-        label_pyramid_height.pack(side=tk.LEFT)
-        global entry_pyramid_height
-        entry_pyramid_height = tk.Entry(frame_inputs)
-        entry_pyramid_height.pack(side=tk.LEFT)
-
-        button_pyramid = tk.Button(frame_inputs, text="Рассчитать", command=calculate_pyramid)
-        button_pyramid.pack(side=tk.LEFT)
-
-    elif selection == "Конус":
-        label_cone_radius = tk.Label(frame_inputs, text="Введите радиус основания конуса:")
-        label_cone_radius.pack(side=tk.LEFT)
-        global entry_cone_radius
-        entry_cone_radius = tk.Entry(frame_inputs)
-        entry_cone_radius.pack(side=tk.LEFT)
-
-        label_cone_height = tk.Label(frame_inputs, text="Введите высоту конуса:")
-        label_cone_height.pack(side=tk.LEFT)
-        global entry_cone_height
-        entry_cone_height = tk.Entry(frame_inputs)
-        entry_cone_height.pack(side=tk.LEFT)
-
-        button_cone = tk.Button(frame_inputs, text="Рассчитать", command=calculate_cone)
-        button_cone.pack(side=tk.LEFT)
 
 # Универсальная функция для вывода результатов
 def display_results(shape: Shape, property_name: str, property_value: float) -> None:
@@ -508,171 +382,45 @@ def display_results(shape: Shape, property_name: str, property_value: float) -> 
     shape.visualize(canvas)  # Визуализируем фигуру
     update_shape_count_label()  # Обновляем количество созданных фигур
 
+
 # Универсальная функция для расчета свойств фигур
 def calculate_shape(shape_class, *args) -> None:
     try:
         # Создаем объект фигуры с переданными параметрами
         shape = shape_class(*args)
 
-        # Вызываем метод area (если он есть)
-        try:
-            area = shape.area()
-            display_results(shape, "Площадь", area)
-        except AttributeError:
-            print(f"Метод area не поддерживается для {shape_class.__name__}")
+        # Список свойств, которые можно вычислить для фигуры
+        properties = ['area', 'volume', 'perimeter']
 
-        # Вызываем метод volume (если он есть)
-        try:
-            volume = shape.volume()
-            display_results(shape, "Объем", volume)
-        except AttributeError:
-            print(f"Метод volume не поддерживается для {shape_class.__name__}")
-
-        # Вызываем метод perimeter (если он есть)
-        try:
-            perimeter = shape.perimeter()
-            display_results(shape, "Периметр", perimeter)
-        except AttributeError:
-            print(f"Метод perimeter не поддерживается для {shape_class.__name__}")
+        # Проходим по списку свойств и проверяем есть ли они у фигуры
+        for prop in properties:
+            if hasattr(shape, prop):
+                # Если свойство существует, вызываем его с помощью getattr
+                value = getattr(shape, prop)()
+                name_prop = property_names.get(prop, prop)    # Выводим пользователю свойство на русском языке
+                display_results(shape, name_prop, value)
 
     except ValueError:
         messagebox.showerror("Ошибка", "Введите корректные данные")
 
-# Функция для круга
-def calculate_circle():
-    try:
-        radius = float(entry.get())  # Получаем радиус от пользователя
-        calculate_shape(Circle, radius)
-    except ValueError:
-        messagebox.showerror("Ошибка",
-                             "Введите корректное число")  # Показываем ошибку, если введены некорректные данные
-
-# Функция для квадрата
-def calculate_square():
-    try:
-        side = float(entry.get())
-        calculate_shape(Square, side)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные данные")
-
-# Функция для прямоугольника
-def calculate_rectangle():
-    try:
-        width = float(entry_rectangle_width.get())
-        height = float(entry_rectangle_height.get())
-        calculate_shape(Rectangle, width, height)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные числа")
-
-# Функция для трапеции
-def calculate_trapezoid():
-    try:
-        a = float(entry_trapezoid_a.get())
-        b = float(entry_trapezoid_b.get())
-        c = float(entry_trapezoid_c.get())
-        d = float(entry_trapezoid_d.get())
-        h = float(entry_trapezoid_h.get())
-        calculate_shape(Trapezoid, a, b, c, d, h)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные числа")
-
-# Функция для треугольника
-def calculate_triangle():
-    try:
-        a = float(entry_triangle_a.get())
-        b = float(entry_triangle_b.get())
-        c = float(entry_triangle_c.get())
-
-        # Проверка: существует ли треугольник
-        if a + b > c and a + c > b and b + c > a:
-            calculate_shape(Triangle, a, b, c)
-        else:
-            # показываем ошибку, если треугольник не может существовать
-            messagebox.showerror("Ошибка", "Сумма двух сторон треугольника должна быть больше третьей стороны.")
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные числа")  # Ошибка при некорректных данных
-
-# Функция для расчета площади и периметра ромба
-def calculate_rhombus():
-    try:
-        diagonal1 = float(entry_rhombus_d1.get())
-        diagonal2 = float(entry_rhombus_d2.get())
-        calculate_shape(Rhombus, diagonal1, diagonal2)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные числа")
-
-# Сфера
-def calculate_sphere():
-    try:
-        radius = float(entry_sphere.get())
-        calculate_shape(Sphere, radius)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректное число")
-
-# Функция для расчета площади и объема цилиндра
-def calculate_cylinder():
-    try:
-        radius = float(entry_cylinder_radius.get())
-        height = float(entry_cylinder_height.get())
-        calculate_shape(Cylinder, radius, height)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные числа")
-
-# Функция для расчета площади и объема куба
-def calculate_cube():
-    try:
-        side = float(entry_cube_side.get())
-        calculate_shape(Cube, side)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректное число")
-
-# Функция для расчета площади и объема параллелепипеда
-def calculate_parallelepiped():
-    try:
-        length = float(entry_parallelepiped_length.get())
-        width = float(entry_parallelepiped_width.get())
-        height = float(entry_parallelepiped_height.get())
-        calculate_shape(Parallelepiped, length, width, height)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные числа")
-
-# Функция для расчета площади и объема пирамиды
-def calculate_pyramid():
-    try:
-        base_length = float(entry_pyramid_base_length.get())
-        base_width = float(entry_pyramid_base_width.get())
-        height = float(entry_pyramid_height.get())
-        calculate_shape(Pyramid, base_length, base_width, height)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные числа")
-
-# Функция для расчета площади и объема конуса
-def calculate_cone():
-    try:
-        radius = float(entry_cone_radius.get())
-        height = float(entry_cone_height.get())
-        calculate_shape(Cone, radius, height)
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите корректные числа")
 
 # Обновление метки с количеством созданных фигур
-def update_shape_count_label():
+def update_shape_count_label() -> None:
     shape_count_label.config(text=f"Количество созданных фигур: {Shape.total_shapes()}")
+
 
 # Создаем главное окно программы
 root = tk.Tk()
 root.title("Геометрический калькулятор")  # заголовок окна
 
-# Список фигур
-figures = ["Круг", "Квадрат", "Прямоугольник", "Треугольник", "Ромб", "Трапеция", "Сфера", "Цилиндр", "Куб",
-           "Параллелепипед", "Пирамида", "Конус"]
+figure_names = list(figures.keys())   # Получаем список названий фигур из словаря figures
 
 # Метка для вывода выбранной фигуры
 label = ttk.Label(text="Выберите фигуру")
 label.pack(anchor=tk.NW, fill=tk.X, padx=5, pady=5)
 
 # Combobox для выбора фигуры
-combobox = ttk.Combobox(values=figures, state="readonly")
+combobox = ttk.Combobox(values=figure_names, state="readonly")
 combobox.pack(anchor=tk.NW, fill=tk.X, padx=5, pady=5)
 combobox.bind("<<ComboboxSelected>>", selected)
 
@@ -688,4 +436,5 @@ canvas.pack()
 shape_count_label = tk.Label(root, text=f"Количество созданных фигур: {Shape.total_shapes()}")
 shape_count_label.pack()
 
-root.mainloop()  # запускаем главный цикл программы, чтобы окно оставалось открытым
+if __name__ == "__main__":
+    root.mainloop()
